@@ -12,7 +12,7 @@ class CreateResultsTable extends Migration
             Schema::create('results', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('race_id')->constrained()->onDelete('cascade');
-                $table->foreignId('rider_team_id')->constrained()->onDelete('cascade');
+                $table->foreignId('rider_id')->constrained()->onDelete('cascade');
                 $table->integer('position');
                 $table->timestamps();
             });
