@@ -32,7 +32,7 @@ class SeasonController extends Controller
         $season_id = Season::find($id);
 
         //Comprobar si el id existe
-        if($season_id === null){
+        if(!$season_id){
             $data = [
                 'message' => 'Season not found', 
                 'status' => 404
@@ -104,15 +104,48 @@ class SeasonController extends Controller
     // Actualiza una temporada
     public function update(Request $request, $id)
     {
-        $season = Season::findOrFail($id);
-        $season->update($request->all());
+        $season = Season::find($id);
+
+        if(!$season){
+            $data = [
+                'message' => 'Season not found', 
+                'status' => 404
+            ];
+            return response()->json($data, 404);
+        }
+
+        $validatedData = $this->validateData($request);
+
+        if ($validatedData['status'] != 200) {
+            return response()->json($validatedData, $validatedData['status']);
+        }
+
+        $season->year = $validatedData['data']['year'];
+        $season->save();
+
         return response()->json($season, 200);
     }
 
     // Elimina una temporada
     public function destroy($id)
     {
-        Season::destroy($id);
-        return response()->json(null, 204);
+        $data = Season::find($id);
+        
+        if(!$data){
+            $data = [
+                'message' => 'Season not found', 
+                'status' => 404
+            ];
+            return response()->json($data, 404);
+        }
+
+        $data->delete();
+
+        $data = [
+            'message' => 'Season deleted', 
+            'status' => 204
+        ];
+
+        return response()->json($data, 204);
     }
 }
