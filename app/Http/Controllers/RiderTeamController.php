@@ -17,7 +17,7 @@ class RiderTeamController extends Controller
                 'message' => 'RiderTeam not found',
                 'status' => 404
             ];
-            return response()->json($data, 404);
+            return response()->json($data, $data['status']);
         }
 
         $data = [

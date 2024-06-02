@@ -11,4 +11,9 @@ class Team extends Model
 
     protected $fillable = ['name'];
 
+    public function riders()
+    {
+        return $this->belongsToMany(Rider::class, 'rider_team');
+    }
+
 }
