@@ -88,6 +88,7 @@ class SeasonController extends Controller
             'year' => $data['year']
         ]);
 
+        // Comprobar si se ha creado la temporada
         if(!$season){
             return [
                 'message' => 'Season not created', 
@@ -101,7 +102,7 @@ class SeasonController extends Controller
         ];
     }
 
-    // Actualiza una temporada
+    // Actualiza una temporada si existe
     public function update(Request $request, $id)
     {
         $season = Season::find($id);
@@ -123,7 +124,7 @@ class SeasonController extends Controller
         $season->year = $validatedData['data']['year'];
         $season->save();
 
-        return response()->json($season, 200);
+        return response()->json($season, $season['status']);
     }
 
     // Elimina una temporada
@@ -146,6 +147,6 @@ class SeasonController extends Controller
             'status' => 204
         ];
 
-        return response()->json($data, 204);
+        return response()->json($data, $data['status']);
     }
 }
