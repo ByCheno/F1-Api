@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator; //Para validar los datos
 
 
-class RidersController extends Controller{
+class RiderController extends Controller{
 
     // Devuelve todos los pilotos
     public function index()
