@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Client;
 use App\Models\Season;
+use SimpleXMLElement;
 
 class SeasonSeeder extends Seeder
 {
@@ -14,34 +14,50 @@ class SeasonSeeder extends Seeder
      */
     public function run(): void
     {
-        $url = 'https://f1-motorsport-data.p.rapidapi.com/photos';
+        $client = new Client();
 
-        $queryParams = [
-            'year' => '2021'
+        // Hacer las solicitudes a la API
+        $responses = [
+            $client->get("https://ergast.com/api/f1/seasons"),
+            $client->get("https://ergast.com/api/f1/seasons?limit=30&offset=30"),
+            $client->get("https://ergast.com/api/f1/seasons?limit=30&offset=60"),
         ];
 
-        // Encabezados de la solicitud
-        $headers = [
-            'X-RapidAPI-Key' => '8abd4c6f90msh34f974bc40e6b57p1d161ajsna3ea6e7b871e',
-            'X-RapidAPI-Host' => 'f1-motorsport-data.p.rapidapi.com',
-        ];
+        // Procesar cada respuesta
+        foreach ($responses as $response) {
+            $this->convertXmlToJson($response);
+        }
+    }
 
-        // Hacer la solicitud HTTP a la API
-        $response = Http::withHeaders($headers)->get($url, $queryParams);
+    public function convertXmlToJson($response)
+    {
+        $xmlContent = $response->getBody()->getContents();
 
-        // Verificar que la solicitud fue exitosa
-        if ($response->successful()) {
-            $data = $response->json();
+        // Convertir el contenido XML a un objeto SimpleXMLElement
+        $xmlObject = new SimpleXMLElement($xmlContent);
+        
+        // Convertir el objeto SimpleXMLElement a JSON y luego a un array asociativo
+        $json = json_encode($xmlObject);
+        $dataArray = json_decode($json, true);
 
-            // Procesar y guardar los datos en la base de datos
-            foreach ($data['photos'] as $photo) {
-                Season::create([
-                    'year' => $photo['year']
-                ]);
+        // Verificar que la clave 'SeasonTable' existe en el array
+        if (isset($dataArray['SeasonTable'])) {
+            // Obtener el array de temporadas
+            $seasonTable = $dataArray['SeasonTable'];
+            if (isset($seasonTable['Season'])) {
+                $seasons = $seasonTable['Season'];
+                
+                // Iterar sobre cada temporada y crear una entrada en la base de datos
+                foreach ($seasons as $season) {
+                    Season::create([
+                        'year' => $season
+                    ]);
+                }
+            } else {
+                echo "Key 'Season' not found in 'SeasonTable'.";
             }
         } else {
-            // Manejar errores de la API
-            $this->command->error('Error al obtener datos de la API: ' . $response->body());
+            echo "Key 'SeasonTable' not found.";
         }
     }
 }
