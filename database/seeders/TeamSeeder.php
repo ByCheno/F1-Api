@@ -17,9 +17,9 @@ class TeamSeeder extends Seeder
         $client = new Client();
         $uniqueConstructors = [];
 
-        // Define el rango de temporadas que deseas cubrir
+        
         $startYear = 1950;
-        $endYear = date('Y'); // Hasta el año actual
+        $endYear = date('Y');
 
         for ($year = $startYear; $year <= $endYear; $year++) {
             $response = $client->get("http://ergast.com/api/f1/{$year}/constructors");
@@ -29,15 +29,14 @@ class TeamSeeder extends Seeder
             $json = json_encode($xmlObject);
             $dataArray = json_decode($json, true);
 
-            $drivers = $dataArray['ConstructorTable']['Constructor'];
+            $teams = $dataArray['ConstructorTable']['Constructor'];
 
-            foreach ($drivers as $driver) {
-                $driverId = $driver['@attributes']['constructorId'];
+            foreach ($teams as $team) {
+                $teamId = $team['@attributes']['constructorId'];
 
-                // Almacenar el piloto solo si no está ya en la colección
-                if (!isset($uniqueConstructors[$driverId])) {
-                    $uniqueConstructors[$driverId] = [
-                        'name' => $driver['Name']
+                if (!isset($uniqueConstructors[$teamId])) {
+                    $uniqueConstructors[$teamId] = [
+                        'name' => $team['Name']
                     ];
                 }
             }
