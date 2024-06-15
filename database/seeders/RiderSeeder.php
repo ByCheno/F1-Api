@@ -15,6 +15,12 @@ class RiderSeeder extends Seeder
         $client = new Client();
         $uniqueDrivers = [];
 
+        $responses = [
+            $client->get('http://ergast.com/api/f1/drivers'),
+            $client->get('https://ergast.com/api/f1/1950/drivers?limit=30&offset=30'),
+            $client->get('https://ergast.com/api/f1/1950/drivers?limit=30&offset=60')
+        ];
+
         // Define el rango de temporadas que deseas cubrir
         $startYear = 1950;
         $endYear = date('Y'); // Hasta el año actual
